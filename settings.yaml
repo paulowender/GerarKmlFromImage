@@ -1,0 +1,8 @@
+# Configurações utilizada apenas para integração com o Google Drive
+client_config_backend: settings
+client_config:
+  client_id: 685411570158-5hvmvhmiricul0njes1dkb485j7h5rp4.apps.googleusercontent.com
+  client_secret: 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
+  save_credentials: True
+save_credentials_backend: file
+save_credentials_file: credentials.jsonget_refres

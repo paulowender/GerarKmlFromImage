@@ -3,5 +3,5 @@ dist
 build
 .venv
 .vscode
-kmlFromImage.spec
+*.spec
 creds.json

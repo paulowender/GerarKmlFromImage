@@ -39,3 +39,7 @@ def confirmAction(title, message):
     result = messagebox.askyesno(title, message)
     root.destroy()
     return result
+
+
+def showConfirm(title, message):
+    return confirmAction(title, message)

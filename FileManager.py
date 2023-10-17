@@ -82,48 +82,92 @@ def compress_image(input_path, output_path, quality=85):
 
 
 def calculate_coordinates(data):
-    if data:
-        a = float(data[0])
-        b = float(data[1])
-        c = float(data[2])
-
-        return (a + b / 60 + c / 3600) * -1
-    else:
+    if data and len(data) < 3:
         return None
 
+    a = f"{data[0]}"
+    b = f"{data[1]}"
+    c = f"{data[2]}"
 
-def extract_gps_info(metadata):
-    if "GPSInfo" in metadata:
-        gps_info = metadata["GPSInfo"]
-        try:
-            # Obtem a latitude
-            latitude = calculate_coordinates(gps_info[2])
-            # Obtem a longitude
-            longitude = calculate_coordinates(gps_info[4])
-
-            # Converte para latitude sul e longitude oeste se necessário
-            if gps_info[3] == "S":
-                latitude = -latitude
-            if gps_info[1] == "W":
-                longitude = -longitude
-
-            return latitude, longitude
-        except Exception as e:
-            showError("Erro ao extrair informações de GPS", e)
-            return None
-    else:
+    if a == "nan" or b == "nan" or c == "nan":
         return None
+
+    a = float(data[0])
+    b = float(data[1])
+    c = float(data[2])
+
+    return (a + b / 60 + c / 3600) * -1
+
+
+def extract_gps_info(imagePath):
+    try:
+        with Image.open(imagePath) as img:
+            metadata = img._getexif()
+            if metadata:
+                for tag_id, value in metadata.items():
+                    tag_name = TAGS.get(tag_id, tag_id)
+                    if tag_name == "GPSInfo":
+                        lat = calculate_coordinates(value[2])
+                        lon = calculate_coordinates(value[4])
+                        if lat and lon:
+                            return {"latitude": lat, "longitude": lon}
+            else:
+                return None
+    except Exception as e:
+        showError("Erro ao extrair informações de imagem", e)
+        return None
+
+    # metadata = get_image_metadata(imagePath)
+    # if "GPSInfo" in metadata:
+    #     gps_info = metadata["GPSInfo"]
+    #     try:
+    #         # Obtem a latitude
+    #         latitude = calculate_coordinates(gps_info[2])
+    #         # Obtem a longitude
+    #         longitude = calculate_coordinates(gps_info[4])
+
+    #         # Converte para latitude sul e longitude oeste se necessário
+    #         if gps_info[3] == "S":
+    #             latitude = -latitude
+    #         if gps_info[1] == "W":
+    #             longitude = -longitude
+
+    #         return latitude, longitude
+    #     except Exception as e:
+    #         showError("Erro ao extrair informações de GPS", e)
+    #         return None
+    # else:
+    #     return None
 
 
 # Abre a tela de seleção das imagens para extrair a localização
-def open_file_dialog():
+def open_file_dialog(type="*.jpg;*.png;*.jpeg"):
     root = Tk()
     root.withdraw()
-    files_paths = filedialog.askopenfilenames(
-        filetypes=[("Image files", "*.jpg;*.png;*.jpeg")]
-    )
+    files_paths = filedialog.askopenfilenames(filetypes=[("Image files", type)])
     root.destroy()
     return files_paths
+
+
+def selectFile(alt="Todos os arquivos", type="*"):
+    root = Tk()
+    root.withdraw()
+    filePath = filedialog.askopenfilename(filetypes=[(alt, type)])
+    root.destroy()
+    return filePath
+
+
+def saveFile(title="Salvar arquivo", alt="Todos os arquivos", type="*"):
+    root = Tk()
+    root.withdraw()
+    filePath = (
+        filedialog.asksaveasfilename(
+            title=title,
+            filetypes=[(alt, type)],
+        ),
+    )
+    root.destroy()
+    return filePath[0]
 
 
 def create_kmz_file(latitude, longitude):

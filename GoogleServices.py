@@ -46,9 +46,9 @@ class GoogleServices:
         self.folderParentID = self.makeDirectory(self.ROOT_DIR, self.folderParentID)
 
         # Save the settings to a file
-        with open("settings.yaml", "a") as f:
-            yaml.dump({"folderID": self.folderParentID}, f)
-            print(f"Folder ID saved: {self.folderParentID}")
+        # with open("settings.yaml", "a") as f:
+        #     yaml.dump({"folderID": self.folderParentID}, f)
+        #     print(f"Folder ID saved: {self.folderParentID}")
 
         # Set the folder ID
         self.folderParentID = self.folderParentID

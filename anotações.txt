@@ -1,0 +1,2 @@
+Comando para gerar aquivo executável
+pyinstaller --noconsole .\kmlFromFile.py --onefile

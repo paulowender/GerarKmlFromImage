@@ -28,19 +28,24 @@ def create_file(filePath, content, override=True):
             return False
 
 
-def rename_file(filePath, newName):
+def rename_file(filePath: str, newName):
     if not os.path.exists(filePath):
-        return False
+        return None
 
     path = os.path.dirname(filePath)
+    fileName = filePath.split("/")[-1]
     fileExtension = os.path.splitext(filePath)[1]
-    newName = path + "/IMG_" + newName + fileExtension
+    newName = "IMG_" + newName + fileExtension
+    if newName == fileName:
+        print("Nome do arquivo já está correto")
+        return None
+    newName = path + "/" + newName
     try:
         os.rename(filePath, newName)
         return newName
     except Exception as e:
         print(f"Erro ao renomear o arquivo: {e}")
-        return False
+        return None
 
 
 def get_image_metadata(image_path):

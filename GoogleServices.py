@@ -5,19 +5,13 @@ import yaml
 
 
 class GoogleServices:
-    ROOT_DIR = "KML_IMAGES"
-    folderParentID = None
-    auth = None
-    drive = None
+    ROOT_DIR: str = "KML_IMAGES"
+    folderParentID: str = None
+    auth: GoogleAuth = None
+    drive: GoogleDrive = None
 
     def __init__(self):
         print("Inicializando Google Services...")
-        if os.path.exists("settings.yaml"):
-            with open("settings.yaml", "r") as f:
-                settings = yaml.safe_load(f)
-                if "folderID" in settings:
-                    self.folderParentID = settings["folderID"]
-                    print(f"Folder ID: {self.folderParentID}")
         # Init Google Auth
         self.auth = GoogleAuth()
         # Check if file exists
@@ -49,17 +43,15 @@ class GoogleServices:
 
         # Create a new folder on Google Drive if it doesn't exist
         print("Creating root folder...")
-        createdfolderID = self.makeDirectory(self.ROOT_DIR, self.folderParentID)
-        print(f"Root Folder ID: {createdfolderID}")
+        self.folderParentID = self.makeDirectory(self.ROOT_DIR, self.folderParentID)
 
         # Save the settings to a file
-        if not self.folderParentID:
-            with open("settings.yaml", "a") as f:
-                yaml.dump({"folderID": createdfolderID}, f)
-                print(f"Folder ID saved: {createdfolderID}")
+        with open("settings.yaml", "a") as f:
+            yaml.dump({"folderID": self.folderParentID}, f)
+            print(f"Folder ID saved: {self.folderParentID}")
 
         # Set the folder ID
-        self.folderParentID = createdfolderID
+        self.folderParentID = self.folderParentID
         print(f"Folder ID: {self.folderParentID}")
 
     # Create a new folder on Google Drive
@@ -86,7 +78,7 @@ class GoogleServices:
             return folder["id"]
 
     # Upload an image to Google Drive
-    def uploadImage(self, imagePath, directory):
+    def uploadImage(self, imagePath: str, directory: str):
         # Get the name of the image
         fileName = imagePath.split("/")[-1]
         # create a new folder on Google Drive
@@ -98,6 +90,7 @@ class GoogleServices:
             return image["thumbnailLink"]
 
         # upload the image
+        print(f"Uploading image: {fileName}")
         file = self.drive.CreateFile({"title": fileName, "parents": [{"id": folderId}]})
         file.SetContentFile(imagePath)
         file.Upload()
@@ -105,7 +98,23 @@ class GoogleServices:
         # return the thumbnail link
         return file["thumbnailLink"]
 
-    # Check if a folder exists on Google Drive
+    # Check if a folder exists on Google Driver by ID
+    def getFolderByID(self, folderID) -> dict | None:
+        # res = self.drive.files().get(fileId=folderID, fields="id, name").execute()
+
+        # Query Google Drive
+        qr = f"id='{folderID}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        # Get the list of files
+        file_list = self.drive.ListFile({"q": qr}).GetList()
+
+        # Return None if the list is empty
+        if file_list == []:
+            return None
+
+        # Return the first file
+        return file_list[0]
+
+    # Check if a folder exists on Google Drive by Name
     def getFolderByName(self, folderName, parentFolderId=None) -> dict | None:
         # Query Google Drive
         qr = f"title='{folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false"

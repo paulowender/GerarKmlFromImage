@@ -162,6 +162,14 @@ def selectFile(alt="Todos os arquivos", type="*"):
     return filePath
 
 
+def selectFiles(alt="Todos os arquivos", type="*"):
+    root = Tk()
+    root.withdraw()
+    filePath = filedialog.askopenfilenames(filetypes=[(alt, type)])
+    root.destroy()
+    return filePath
+
+
 def saveFile(title="Salvar arquivo", alt="Todos os arquivos", type="*"):
     root = Tk()
     root.withdraw()
